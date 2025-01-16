@@ -40,8 +40,8 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: ${{ secrets.CONTAINER_NAME }}
-          image: ${{ secrets.ECR_REPOSITORY_URI }}:$GITHUB_SHA
+          container-name:  spring-petclinic
+          image: 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
