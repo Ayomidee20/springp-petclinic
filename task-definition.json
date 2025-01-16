@@ -1,10 +1,10 @@
 {
     "family": "spring-petclinic",
-    "executionRoleArn": "arn:aws:iam::<your-account-id>:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::014498631401:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "spring-petclinic",
-            "image": "your-repository-url/spring-petclinic:latest",
+            "image": "014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic",
             "cpu": 256,
             "memory": 512,
             "portMappings": [
