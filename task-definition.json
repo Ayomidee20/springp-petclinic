@@ -1,6 +1,6 @@
 {
     "family": "spring-petclinic",
-    "executionRoleArn": "arn:aws:iam::014498631401:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::014498631401:role/ecs-task-execcution-role",
     "containerDefinitions": [
         {
             "name": "spring-petclinic",
