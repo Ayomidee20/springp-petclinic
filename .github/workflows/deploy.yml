@@ -76,19 +76,23 @@ jobs:
           docker push $IMAGE_URI:${{ github.sha }}
           docker push $IMAGE_URI:latest
 
-      # Step 6: Set up SSH for EC2 deployment
+      # Step 6: Debug EC2_IP to confirm resolution
+      - name: Debug EC2_IP
+        run: echo "Deploying to EC2 instance at: ${{ secrets.EC2_IP }}"
+
+      # Step 7: Set up SSH for EC2 deployment
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      # Step 7: Deploy to EC2 instance
+      # Step 8: Deploy to EC2 instance
       - name: Deploy to EC2
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << EOF
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 014498631401.dkr.ecr.us-east-1.amazonaws.com
             docker pull 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
             docker stop spring-petclinic || true
