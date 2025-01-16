@@ -9,7 +9,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout the code
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -29,11 +29,11 @@ jobs:
           restore-keys: |
             maven-
 
-      # Step 4: Build the application with Maven
+      # Step 4: Build the application
       - name: Build with Maven
         run: ./mvnw package
 
-      # Step 5: Save build artifacts
+      # Step 5: Upload build artifacts
       - name: Save build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -46,17 +46,11 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Step 2: Download build artifacts
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
 
-      # Step 3: Configure AWS credentials
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -64,11 +58,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # Step 4: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 5: Build and push Docker image to Amazon ECR
       - name: Build and push Docker image
         run: |
           IMAGE_URI=014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic
@@ -76,26 +68,26 @@ jobs:
           docker push $IMAGE_URI:${{ github.sha }}
           docker push $IMAGE_URI:latest
 
-      # Step 6: Debug EC2_IP to confirm resolution
-      - name: Debug EC2_IP
-        run: echo "Deploying to EC2 instance at: ${{ secrets.EC2_IP }}"
+      - name: Confirm EC2_IP
+        run: |
+          echo "Deploying to EC2 instance at: ${{ secrets.EC2_IP }}"
 
-      # Step 7: Set up SSH for EC2 deployment
-      - name: Set up SSH
+      - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      # Step 8: Deploy to EC2 instance
       - name: Deploy to EC2
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no "ubuntu@${{ env.EC2_IP }}" << 'EOF'
+            set -e
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 014498631401.dkr.ecr.us-east-1.amazonaws.com
             docker pull 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
             docker stop spring-petclinic || true
             docker rm spring-petclinic || true
             docker run -d --name spring-petclinic -p 8080:8080 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
           EOF
+
