@@ -35,13 +35,14 @@ jobs:
           docker buildx build --platform linux/amd64 -t ${{ secrets.ECR_REPOSITORY_URI }}:$GITHUB_SHA .
           docker push ${{ secrets.ECR_REPOSITORY_URI }}:$GITHUB_SHA
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+     - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name:  spring-petclinic
-          image: 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic
+          container-name: ${{ secrets.CONTAINER_NAME }}
+          image: ${{ secrets.ECR_REPOSITORY_URI }}:$GITHUB_SHA
+          task-execution-role: ${{ secrets.ECS_TASK_EXECUTION_ROLE_ARN }}
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
