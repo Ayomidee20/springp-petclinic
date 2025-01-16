@@ -1,0 +1,25 @@
+{
+    "family": "spring-petclinic",
+    "containerDefinitions": [
+        {
+            "name": "spring-petclinic",
+            "image": "014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic",
+            "cpu": 256,
+            "memory": 512,
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512"
+}
