@@ -1,25 +1,27 @@
 name: Deploy to AWS ECS
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
-    runs-on: ubuntu-22.04  # Ensure compatibility with current versions
-
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ${{ secrets.AWS_REGION }}  # Pass the region here
 
       - name: Build and push Docker image
         run: |
@@ -33,7 +35,3 @@ jobs:
           service: ${{ secrets.ECS_SERVICE_NAME }}
           task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
           image-uri: ${{ secrets.ECR_REPOSITORY_URI }}:$GITHUB_SHA
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}  # Ensure AWS_REGION is available
