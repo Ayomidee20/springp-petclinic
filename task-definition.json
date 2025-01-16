@@ -1,9 +1,10 @@
 {
     "family": "spring-petclinic",
+    "executionRoleArn": "arn:aws:iam::<your-account-id>:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "spring-petclinic",
-            "image": "014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic",
+            "image": "your-repository-url/spring-petclinic:latest",
             "cpu": 256,
             "memory": 512,
             "portMappings": [
@@ -13,7 +14,15 @@
                     "protocol": "tcp"
                 }
             ],
-            "essential": true
+            "essential": true,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/spring-petclinic",
+                    "awslogs-region": "${AWS_REGION}",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
         }
     ],
     "requiresCompatibilities": [
