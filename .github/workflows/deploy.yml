@@ -62,6 +62,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and push Docker image
+
         run: |
           IMAGE_URI=014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic
           docker build -t $IMAGE_URI:${{ github.sha }} -t $IMAGE_URI:latest .
@@ -77,7 +78,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
+          
+    
       - name: Deploy to EC2
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
@@ -88,6 +90,7 @@ jobs:
             docker pull 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
             docker stop spring-petclinic || true
             docker rm spring-petclinic || true
-            docker run -d --name spring-petclinic -p 8080:8080 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
+            docker run -d --name spring-petclinic \
+              --restart unless-stopped \
+              -p 8080:8080 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
           EOF
-
