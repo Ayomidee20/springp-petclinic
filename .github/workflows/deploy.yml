@@ -79,18 +79,27 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-    
       - name: Deploy to EC2
+
         env:
+
           EC2_IP: ${{ secrets.EC2_IP }}
+
         run: |
+
           ssh -o StrictHostKeyChecking=no "ubuntu@${{ env.EC2_IP }}" << 'EOF'
+
             set -e
+
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 014498631401.dkr.ecr.us-east-1.amazonaws.com
+
             docker pull 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
+
             docker stop spring-petclinic || true
+
             docker rm spring-petclinic || true
-            docker run -d --name spring-petclinic \
-              --restart unless-stopped \
-              -p 8080:8080 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
+
+            docker run -d --name spring-petclinic -p 8080:8080 014498631401.dkr.ecr.us-east-1.amazonaws.com/spring-petclinic:latest
+
           EOF
+
